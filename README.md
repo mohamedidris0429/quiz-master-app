@@ -1,3 +1,8 @@
+
+## 📱 Download My App
+
+[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android)]()
+
 # 🌟 QuizMaster Pro - Glassmorphic Quiz Application
 
 A sleek, responsive, and interactive mobile quiz application crafted with an ultra-modern **Glassmorphism UI**. Designed as part of the internship task to deliver an intuitive user experience with category-based progression and multi-level challenges.
