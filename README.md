@@ -1,7 +1,7 @@
 
 ## 📱 Download My App
 
-[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android)]()
+[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/mohamedidris0429/quiz-master-app/releases/tag/V1)
 
 # 🌟 QuizMaster Pro - Glassmorphic Quiz Application
 
