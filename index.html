@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizMaster - Glassmorphic Quiz App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e1b4b, #311042);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glowing Background Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.6;
+            animation: floatOrb 8s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 280px; height: 280px; background: #6366f1; top: 5%; left: 5%; }
+        .orb-2 { width: 250px; height: 250px; background: #ec4899; bottom: 10%; right: 5%; }
+        .orb-3 { width: 180px; height: 180px; background: #06b6d4; top: 45%; left: 55%; }
+
+        @keyframes floatOrb {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-30px) scale(1.1); }
+        }
+
+        /* Glassmorphism Card Container */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 440px;
+            padding: 24px;
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        /* Logo & Header */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-wrap {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 12px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        .app-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #c7d2fe, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .app-subtitle {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 4px;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Category Grid */
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            color: #fff;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+
+        .glass-btn:active {
+            transform: scale(0.96);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-btn i, .glass-btn span.icon {
+            font-size: 26px;
+        }
+
+        .glass-btn span.title {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .glass-btn span.desc {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Levels Screen */
+        .level-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .level-card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 14px 18px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .level-card:active {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateX(4px);
+        }
+
+        /* Quiz Gameplay Screen */
+        .quiz-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .progress-bar-wrap {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #6366f1, #ec4899);
+            transition: width 0.3s ease;
+        }
+
+        .question-box {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.45;
+            margin-bottom: 20px;
+            min-height: 65px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 14px;
+            padding: 12px 16px;
+            color: #f8fafc;
+            text-align: left;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+
+        .option-btn.correct {
+            background: rgba(34, 197, 94, 0.35) !important;
+            border-color: #22c55e !important;
+            color: #bbf7d0;
+        }
+
+        .option-btn.wrong {
+            background: rgba(239, 68, 68, 0.35) !important;
+            border-color: #ef4444 !important;
+            color: #fecaca;
+        }
+
+        /* Result Screen */
+        .result-box {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            margin: 15px auto 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 3px solid #6366f1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .score-num {
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        .score-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Navigation Buttons */
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            color: white;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            margin-top: 8px;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Orbs for Glassmorphism -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="glass-card">
+        <!-- Brand / Logo Header -->
+        <div class="header">
+            <div class="logo-wrap">
+                <!-- Custom Glass Quiz Logo SVG -->
+                <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="44" stroke="url(#logoGrad)" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M40 38C40 32.4772 44.4772 28 50 28C55.5228 28 60 32.4772 60 38C60 42.5 56.5 45.5 53 48C50.5 49.8 49 52 49 55V58" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                    <circle cx="49" cy="69" r="4.5" fill="#f472b6"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#38bdf8"/>
+                            <stop offset="0.5" stop-color="#818cf8"/>
+                            <stop offset="1" stop-color="#f472b6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h1 class="app-title">QuizMaster Pro</h1>
+            <p class="app-subtitle">Glassmorphism Edition • 100+ Questions</p>
+        </div>
+
+        <!-- 1. Category Screen -->
+        <div id="categoryScreen" class="screen active">
+            <div class="section-title">📂 Choose a Category</div>
+            <div class="grid-list" id="categoryGrid">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- 2. Level Screen -->
+        <div id="levelScreen" class="screen">
+            <div class="back-nav" onclick="showCategoryScreen()">← Back to Categories</div>
+            <div class="section-title" id="selectedCatTitle">Select Level</div>
+            <div class="level-list" id="levelGrid">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- 3. Quiz Game Screen -->
+        <div id="quizScreen" class="screen">
+            <div class="quiz-top">
+                <span class="badge" id="quizCatBadge">Category</span>
+                <span class="badge" id="quizProgressCount">Q 1/10</span>
+            </div>
+
+            <div class="progress-bar-wrap">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="question-box" id="questionText">Question loading...</div>
+
+            <div class="options-list" id="optionsContainer">
+                <!-- Options injected via JS -->
+            </div>
+        </div>
+
+        <!-- 4. Result Screen -->
+        <div id="resultScreen" class="screen">
+            <div class="result-box">
+                <h2 style="font-size: 1.4rem;">Level Completed! 🎉</h2>
+                <div class="score-circle">
+                    <span class="score-num" id="finalScore">0</span>
+                    <span class="score-label">Points</span>
+                </div>
+                <p id="scoreMessage" style="font-size: 0.9rem; color: rgba(255,255,255,0.8); margin-bottom: 20px;">Great job!</p>
+                <button class="action-btn" onclick="showCategoryScreen()">Next Category / Level</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Structure: Categories & Questions (Structured to support 100+ modular questions)
+        const quizData = {
+            social: {
+                name: "Socialism & Society",
+                icon: "🌍",
+                levels: {
+                    level1: [
+                        { q: "Who is widely regarded as the father of modern socialism/communism?", o: ["Karl Marx", "Adam Smith", "John Locke", "Plato"], a: 0 },
+                        { q: "Which famous book was co-authored by Karl Marx and Friedrich Engels in 1848?", o: ["The Wealth of Nations", "The Communist Manifesto", "Leviathan", "Republic"], a: 1 },
+                        { q: "Socialism primarily advocates for the public ownership of what?", o: ["Private diaries", "Means of production", "Smartphones", "Clothing"], a: 1 },
+                        { q: "What is the core principle of wealth distribution in socialism?", o: ["Winner takes all", "Hereditary transfer", "Equitable distribution based on contribution", "Random lottery"], a: 2 },
+                        { q: "Which Nordic country often implements democratic socialist / social-democratic policies?", o: ["Norway", "Monaco", "Qatar", "Singapore"], a: 0 }
+                    ],
+                    level2: [
+                        { q: "Which revolution in 1917 established the world's first socialist state?", o: ["French Revolution", "Bolshevik (Russian) Revolution", "American Revolution", "Industrial Revolution"], a: 1 },
+                        { q: "What term describes a system combining socialist goals with democratic elections?", o: ["Feudalism", "Democratic Socialism", "Autocracy", "Absolute Monarchy"], a: 1 },
+                        { q: "In socialist theory, what class sells its labor for wages?", o: ["Bourgeoisie", "Aristocracy", "Proletariat", "Oligarchy"], a: 2 },
+                        { q: "Which key sector is commonly nationalized in a socialist model?", o: ["Healthcare & Public Utilities", "Fashion brands", "Gaming consoles", "Luxury hotels"], a: 0 },
+                        { q: "Who wrote 'Das Kapital'?", o: ["Karl Marx", "Vladimir Lenin", "Max Weber", "Thomas Hobbes"], a: 0 }
+                    ]
+                }
+            },
+            gaming: {
+                name: "Games & Esports",
+                icon: "🎮",
+                levels: {
+                    level1: [
+                        { q: "Which Italian plumber is the mascot of Nintendo?", o: ["Sonic", "Mario", "Crash", "Rayman"], a: 1 },
+                        { q: "Which battle royale game features dropping onto an island and building structures?", o: ["Fortnite", "Minecraft", "Valorant", "Tetris"], a: 0 },
+                        { q: "What is the best-selling video game of all time?", o: ["GTA V", "Minecraft", "Wii Sports", "Pac-Man"], a: 1 },
+                        { q: "What is the primary currency used in Roblox?", o: ["V-Bucks", "Minecoins", "Robux", "Gems"], a: 2 },
+                        { q: "In 'Among Us', who is trying to eliminate the crewmates?", o: ["Sheriff", "Impostor", "Jester", "Medic"], a: 1 }
+                    ],
+                    level2: [
+                        { q: "Which game popularized the MOBA genre alongside Dota?", o: ["League of Legends", "Overwatch", "Apex Legends", "CS:GO"], a: 0 },
+                        { q: "What year was the original Sony PlayStation launched in Japan?", o: ["1994", "1998", "2001", "1990"], a: 0 },
+                        { q: "Which company developed the game 'The Witcher 3'?", o: ["Ubisoft", "CD Projekt Red", "Bethesda", "Square Enix"], a: 1 },
+                        { q: "What is the highest rank in competitive 'Counter-Strike: Global Offensive'?", o: ["Global Elite", "Immortal", "Radiant", "Grandmaster"], a: 0 },
+                        { q: "Who is the protagonist of 'God of War' series?", o: ["Kratos", "Zeus", "Ares", "Atreus"], a: 0 }
+                    ]
+                }
+            },
+            tech: {
+                name: "Tech & Coding",
+                icon: "💻",
+                levels: {
+                    level1: [
+                        { q: "What language is mainly used to build modern Web interfaces dynamically?", o: ["Python", "JavaScript", "C", "SQL"], a: 1 },
+                        { q: "What does HTML stand for?", o: ["HyperText Markup Language", "High Transfer Machine Logic", "Hyper Tabular Machine Link", "None"], a: 0 },
+                        { q: "Which operating system uses an open-source Linux kernel for smartphones?", o: ["iOS", "Android", "Windows Phone", "Symbian"], a: 1 },
+                        { q: "What does CSS stand for in web development?", o: ["Creative Style Sheets", "Cascading Style Sheets", "Computer System Style", "Color Sheet Set"], a: 1 },
+                        { q: "Which company developed the Flutter framework?", o: ["Apple", "Microsoft", "Google", "Meta"], a: 2 }
+                    ],
+                    level2: [
+                        { q: "What is git primarily used for?", o: ["Version Control", "Video Editing", "Game Rendering", "Cloud Hosting"], a: 0 },
+                        { q: "In Python, which keyword defines a function?", o: ["function", "def", "fun", "lambda"], a: 1 },
+                        { q: "Which database type uses tables and primary keys?", o: ["Relational (SQL)", "NoSQL Document", "Graph DB", "Key-Value"], a: 0 },
+                        { q: "What does API stand for?", o: ["Application Programming Interface", "Applied Protocol Integration", "Auto Program Initiator", "None"], a: 0 },
+                        { q: "What is an APK file in Android?", o: ["Android Package Kit", "Applied Program Kernel", "Android Private Key", "Apple Pack Kit"], a: 0 }
+                    ]
+                }
+            },
+            gk: {
+                name: "General Knowledge",
+                icon: "💡",
+                levels: {
+                    level1: [
+                        { q: "Which is the largest ocean in the world?", o: ["Atlantic", "Indian", "Pacific", "Arctic"], a: 2 },
+                        { q: "How many states are there in India?", o: ["28", "29", "27", "30"], a: 0 },
+                        { q: "Which planet is known as the Red Planet?", o: ["Venus", "Mars", "Jupiter", "Saturn"], a: 1 },
+                        { q: "What is the capital of Tamil Nadu?", o: ["Madurai", "Coimbatore", "Chennai", "Salem"], a: 2 },
+                        { q: "Who invented the telephone?", o: ["Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "Newton"], a: 0 }
+                    ],
+                    level2: [
+                        { q: "Which is the tallest mountain peak in the world?", o: ["K2", "Mount Everest", "Kangchenjunga", "Makalu"], a: 1 },
+                        { q: "Which gas do plants absorb during photosynthesis?", o: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Argon"], a: 1 },
+                        { q: "In which year did India get independence?", o: ["1945", "1947", "1950", "1948"], a: 1 },
+                        { q: "Who is known as the Missile Man of India?", o: ["Dr. A.P.J. Abdul Kalam", "Vikram Sarabhai", "Homi Bhabha", "C.V. Raman"], a: 0 },
+                        { q: "What is the currency of Japan?", o: ["Won", "Yen", "Yuan", "Ringgit"], a: 1 }
+                    ]
+                }
+            }
+        };
+
+        // State variables
+        let currentCategory = "";
+        let currentLevel = "";
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        // Render Categories on Load
+        function initCategories() {
+            const grid = document.getElementById("categoryGrid");
+            grid.innerHTML = "";
+            for (let key in quizData) {
+                const item = quizData[key];
+                const btn = document.createElement("div");
+                btn.className = "glass-btn";
+                btn.onclick = () => selectCategory(key);
+                btn.innerHTML = `
+                    <span class="icon">${item.icon}</span>
+                    <span class="title">${item.name}</span>
+                    <span class="desc">${Object.keys(item.levels).length} Levels</span>
+                `;
+                grid.appendChild(btn);
+            }
+        }
+        function selectCategory(catKey) {
+            currentCategory = catKey;
+            document.getElementById("selectedCatTitle").textContent = quizData[catKey].name + " - Levels";
+            
+            const levelGrid = document.getElementById("levelGrid");
+            levelGrid.innerHTML = "";
+            const levels = quizData[catKey].levels;
+            let idx = 1;
+            for (let lKey in levels) {
+                const card = document.createElement("div");
+                card.className = "level-card";
+                card.onclick = () => startQuiz(catKey, lKey);
+                card.innerHTML = `
+                    <div>
+                        <div style="font-weight: 600;">Level ${idx}</div>
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6);">${levels[lKey].length} Questions</div>
+                    </div>
+                    <span style="font-size: 1.2rem;">⚡ Play</span>
+                `;
+                levelGrid.appendChild(card);
+                idx++;
+            }
+            switchScreen("levelScreen");
+        }
+        function startQuiz(catKey, lKey) {
+            currentCategory = catKey;
+            currentLevel = lKey;
+            currentQuestions = quizData[catKey].levels[lKey];
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById("quizCatBadge").textContent = quizData[catKey].name;
+            switchScreen("quizScreen");
+            loadQuestion();
+        }
+        function loadQuestion() {
+            const qData = currentQuestions[currentQuestionIndex];
+            const total = currentQuestions.length;
+            document.getElementById("quizProgressCount").textContent = `Q ${currentQuestionIndex + 1}/${total}`;
+            document.getElementById("progressFill").style.width = `${((currentQuestionIndex) / total) * 100}%`;
+            document.getElementById("questionText").textContent = qData.q;
+            const opts = document.getElementById("optionsContainer");
+            opts.innerHTML = "";
+            qData.o.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.textContent = opt;
+                btn.onclick = () => handleAnswer(idx, btn);
+                opts.appendChild(btn);
+            });
+        }
+        function handleAnswer(selectedIdx, btnElement) {
+            const correctIdx = currentQuestions[currentQuestionIndex].a;
+            const buttons = document.querySelectorAll(".option-btn");
+            
+            // Disable all buttons once clicked
+            buttons.forEach(b => b.style.pointerEvents = "none");
+            if (selectedIdx === correctIdx) {
+                btnElement.classList.add("correct");
+                score += 10;
+            } else {
+                btnElement.classList.add("wrong");
+                buttons[correctIdx].classList.add("correct");
+            }
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < currentQuestions.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 900);
+        }
+        function showResult() {
+            switchScreen("resultScreen");
+            document.getElementById("finalScore").textContent = score;
+            const maxScore = currentQuestions.length * 10;
+            const msg = document.getElementById("scoreMessage");
+            if (score === maxScore) {
+                msg.textContent = "Outstanding! Perfect score! 🏆";
+            } else if (score >= maxScore / 2) {
+                msg.textContent = "Good job! You passed the level! 👍";
+            } else {
+                msg.textContent = "Keep practicing! Try again! 💪";
+            }
+        }
+        function showCategoryScreen() {
+            switchScreen("categoryScreen");
+        }
+        function switchScreen(screenId) {
+            document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+            document.getElementById(screenId).classList.add("active");
+        }
+        // Initialize on start
+        initCategories();
+    </script>
+</body>
+</html>
